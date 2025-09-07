@@ -1,0 +1,13 @@
+from pydantic import BaseModel
+from models.usuarios import usuarios
+from models.usuarios import tipoUsuario
+
+class usuarisosSchema(BaseModel):
+    id: int
+    login: str #cpf
+    senha: str
+    tipo: tipoUsuario
+    pessoa_id: int
+
+    class Config:
+        orm_mode = True

@@ -1,18 +1,32 @@
 import uvicorn
 from fastapi import FastAPI
 
+from app.file import file_controller
+from app.user import user_controller
+
+
 # 1. Cria a instância principal da nossa aplicação
 app = FastAPI(
     title="API do Meu Projeto",
     version="0.1.0"
 )
 
-# 2. Criando o primeiro endpoint
+# 2. Inclui o roteador de usuários na aplicação principal
+app.include_router(user_controller.router)
+
+# Endpoint raiz (opcional, bom para health check)
 @app.get("/")
 def read_root():
-    # Quando alguém acessar a raiz ("/") da nossa API via GET...
-    # ...retornamos este dicionário. O FastAPI o converte para JSON automaticamente!
-    return {"message": "Bem-vindo à API do nosso projeto!"}
+    return {"message": "API está no ar!"}
+
+app.include_router(file_controller.router)
+
+# Endpoint raiz (opcional, bom para health check)
+@app.get("/")
+def read_root():
+    return {"message": "API está no ar!"}
+
+
 
 # 3. Endpoint com Parâmetro de Rota (Path Parameter)
 @app.get("/items/{item_id}")
@@ -34,3 +48,10 @@ def read_item(item_id: int, q: str | None = None):
 if __name__ == '__main__':
     # Este bloco só executa quando rodamos o script diretamente (python main.py)
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+
+
+
+
+

@@ -1,6 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
+from app.property import property_controller
 from app.user import user_controller
 from database import Base, engine
 
@@ -17,6 +18,7 @@ app = FastAPI(
 
 # 2. Inclui o roteador de usuários na aplicação principal
 app.include_router(user_controller.router)
+app.include_router(property_controller.router)
 
 
 # 3. Código para rodar o servidor

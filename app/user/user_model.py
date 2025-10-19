@@ -1,42 +1,53 @@
 # app/users/models.py
 from pydantic import BaseModel, EmailStr, Field
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.orm import relationship
 from database import Base
-
+from app.typeUser.typeUser_model import TypeUserEnum
 
 # ==================================
 # MODELO DA TABELA (SQLAlchemy)
 # ==================================
-# Esta classe define a estrutura da tabela 'users' no banco de dados.
 class User(Base):
-    __tablename__ = "users"  # Nome da tabela no banco
+    __tablename__ = "users"
 
     # Colunas da tabela
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True) # E-mail deve ser único
-    hashed_password = Column(String) # Armazenaremos a senha "hasheada"
-    full_name = Column(String, index=True, nullable=True) # Nome pode ser nulo
+    id: int = Column(Integer, primary_key=True, index=True)
+    email: str = Column(String, unique=True, index=True, nullable=False)
+    hashed_password: str = Column(String, nullable=False)
+    full_name: str | None = Column(String, index=True, nullable=True)
+
+    # Relacionamento com TypeUser
+    type_user_id: int = Column(Integer, ForeignKey("type_users.id"), nullable=False)
+    type_user = relationship("TypeUser", back_populates="users")  # Nome da classe SQLAlchemy lá no outro arquivo
+
 
 # ==================================
-# SCHEMAS (Pydantic) - O CONTRATO DA API
+# SCHEMAS (Pydantic)
 # ==================================
-# Estes schemas definem como os dados são recebidos e enviados pela API.
 
-# Schema para os dados que o cliente envia ao CRIAR um usuário
+# 🔹 Schema para criação
 class UserCreate(BaseModel):
-    email: EmailStr  # Valida o formato do e-mail
+    email: EmailStr
     password: str = Field(min_length=8)
     full_name: str | None = Field(default=None, min_length=3)
+    type_user_id: int  # FK para TypeUser
 
-# Schema para os dados que o cliente envia ao ATUALIZAR um usuário
+
+# 🔹 Schema para atualização
 class UserUpdate(BaseModel):
     email: EmailStr | None = None
     password: str | None = Field(default=None, min_length=8)
     full_name: str | None = Field(default=None, min_length=3)
+    type_user_id: int | None = None
 
-# Schema para os dados que a API RETORNA ao cliente (público)
-# NUNCA inclua a senha ou outros dados sensíveis aqui!
+
+# 🔹 Schema de resposta pública
 class UserPublic(BaseModel):
     id: int
     email: EmailStr
     full_name: str | None = None
+    type_user: TypeUserEnum
+
+    class Config:
+        from_attributes = True  # Permite converter objetos ORM → Pydantic

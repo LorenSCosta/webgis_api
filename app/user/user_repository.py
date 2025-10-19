@@ -30,10 +30,8 @@ def create_user(db: Session, user: user_model.UserCreate):
     """
     # AVISO: A senha aqui ainda não está segura! Veremos como fazer o hash na próxima aula.
     hashed_password = user.password
-
-    # Cria uma instância do modelo SQLAlchemy com os dados do schema Pydantic.
-    # É aqui que os dados da API são transformados em um objeto que pode ser salvo no banco.
-    db_user = user_model.User(email=user.email, hashed_password=hashed_password, full_name=user.full_name)
+    
+    db_user = user_model.User(email=user.email, hashed_password=hashed_password, full_name=user.full_name,  type_user_id=user.type_user_id)
 
     db.add(db_user)      # Adiciona o novo objeto à sessão (área de preparação).
     db.commit()         # Salva (commita) as mudanças no banco de dados.

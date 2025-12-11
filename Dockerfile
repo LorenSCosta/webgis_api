@@ -1,20 +1,24 @@
-# Dockerfile para FastAPI Backend
-FROM python:3.11-slim
+# Imagem base
+FROM python:3.13-slim
 
-# Diretório de trabalho
+# Define diretório de trabalho
 WORKDIR /app
 
-# Copia requirements
-COPY requirements.txt .
+# Instala Poetry
+RUN pip install --no-cache-dir poetry
 
-# Instala dependências
-RUN pip install --no-cache-dir -r requirements.txt
+# Copia arquivos de dependência
+COPY pyproject.toml poetry.lock* /app/
 
-# Copia todo o código
-COPY . .
+# Configura Poetry e instala dependências sem criar virtualenv
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi
 
-# Expõe porta do FastAPI
+# Copia o código fonte
+COPY . /app
+
+# Expõe porta
 EXPOSE 8000
 
-# Comando para rodar FastAPI
+# Comando para rodar a aplicação
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

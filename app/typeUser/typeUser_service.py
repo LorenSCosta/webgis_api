@@ -1,53 +1,32 @@
-# app/typeUser/typeUser_service.py
-
-from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from . import typeUser_model, typeUser_repository
+from sqlalchemy.orm import Session
+
+from app.typeUser import typeUser_repository
+from app.typeUser.typeUser_model import TypeUserCreate, TypeUserUpdate, TypeUserEnum
 
 
-# =============================
-# CREATE
-# =============================
-def create_new_type_user(db: Session, type_user: typeUser_model.TypeUserCreate):
-    """Cria um novo tipo de usuário (admin ou analista)."""
-    return typeUser_repository.create_type_user(db=db, type_user=type_user)
+def create_type_user(db: Session, type_in: TypeUserCreate):
 
-
-# =============================
-# READ ALL
-# =============================
-def get_all_type_users(db: Session):
-    """Lista todos os tipos de usuários."""
-    return typeUser_repository.get_all_type_users(db)
-
-
-# =============================
-# READ BY ID
-# =============================
-def get_type_user_by_id(db: Session, type_user_id: int):
-    """Busca um tipo de usuário pelo ID, com tratamento de erro."""
-    db_type_user = typeUser_repository.get_type_user_by_id(db, type_user_id=type_user_id)
-    if db_type_user is None:
+    # Verifica se já existe
+    exists = typeUser_repository.get_by_tipo(db, type_in.tipo)
+    if exists:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Type user not found"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="TypeUser already exists"
         )
-    return db_type_user
+
+    return typeUser_repository.create(db, type_in)
 
 
-# =============================
-# UPDATE
-# =============================
-def update_existing_type_user(db: Session, type_user_id: int, type_user_in: typeUser_model.TypeUserUpdate):
-    """Atualiza um tipo de usuário existente."""
-    db_type_user = get_type_user_by_id(db, type_user_id)
-    return typeUser_repository.update_type_user(db=db, db_type_user=db_type_user, type_user_in=type_user_in)
+def get_all_types(db: Session):
+    return typeUser_repository.get_all(db)
 
 
-# =============================
-# DELETE
-# =============================
-def delete_type_user_by_id(db: Session, type_user_id: int):
-    """Deleta um tipo de usuário existente."""
-    db_type_user = get_type_user_by_id(db, type_user_id)
-    return typeUser_repository.delete_type_user(db=db, db_type_user=db_type_user)
+def get_type_by_id(db: Session, type_id: int):
+    obj = typeUser_repository.get_by_id(db, type_id)
+
+    if not obj:
+        raise HTTPException(status_code=404, detail="TypeUser not found")
+
+    return obj
+

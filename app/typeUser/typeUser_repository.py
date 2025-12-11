@@ -1,55 +1,31 @@
-# app/typeUser/typeUser_repository.py
-
 from sqlalchemy.orm import Session
-from .typeUser_model import TypeUser, TypeUserCreate, TypeUserUpdate
-# =============================
-# CREATE
-# =============================
-def create_type_user(db: Session, type_user: TypeUserCreate):
-    """Cria um novo tipo de usuário (admin ou analista)."""
-    db_type_user = TypeUser(tipo=type_user.tipo)
-    db.add(db_type_user)
-    db.commit()
-    db.refresh(db_type_user)
-    return db_type_user
+from app.typeUser.typeUser_model import TypeUser, TypeUserEnum, TypeUserCreate, TypeUserUpdate
 
 
-# =============================
-# READ ALL
-# =============================
-def get_all_type_users(db: Session):
-    """Retorna todos os tipos de usuários cadastrados."""
+def get_by_tipo(db: Session, tipo: TypeUserEnum):
+    return db.query(TypeUser).filter(TypeUser.tipo == tipo).first()
+
+
+def get_by_id(db: Session, type_id: int):
+    return db.query(TypeUser).filter(TypeUser.id == type_id).first()
+
+
+def get_all(db: Session):
     return db.query(TypeUser).all()
 
 
-# =============================
-# READ BY ID
-# =============================
-def get_type_user_by_id(db: Session, type_user_id: int):
-    """Busca um tipo de usuário pelo ID."""
-    return db.query(TypeUser).filter(TypeUser.id == type_user_id).first()
-
-
-# =============================
-# UPDATE
-# =============================
-def update_type_user(db: Session, db_type_user: TypeUser, type_user_in: TypeUserUpdate):
-    """Atualiza os dados de um tipo de usuário existente."""
-    update_data = type_user_in.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(db_type_user, key, value)
-
-    db.add(db_type_user)
+def create(db: Session, type_in: TypeUserCreate):
+    db_obj = TypeUser(tipo=type_in.tipo)
+    db.add(db_obj)
     db.commit()
-    db.refresh(db_type_user)
-    return db_type_user
+    db.refresh(db_obj)
+    return db_obj
 
 
-# =============================
-# DELETE
-# =============================
-def delete_type_user(db: Session, db_type_user: TypeUser):
-    """Deleta um tipo de usuário do banco de dados."""
-    db.delete(db_type_user)
+# usado somente pelo seed
+def create_from_enum(db: Session, enum_value: TypeUserEnum):
+    db_obj = TypeUser(tipo=enum_value)
+    db.add(db_obj)
     db.commit()
-    return db_type_user
+    db.refresh(db_obj)
+    return db_obj

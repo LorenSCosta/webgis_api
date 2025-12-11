@@ -1,21 +1,27 @@
 [project]
 name = "webgis_api"
 version = "0.1.0"
-description = ""
+description = "API FastAPI"
 authors = [
     {name = "Loren Costa",email = "lorena.costa@estudantes.ifg.edu.br"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "uvicorn (>=0.35.0,<0.36.0)",
-    "pydantic (>=2.11.7,<3.0.0)",
-    "fastapi (>=0.116.1,<0.117.0)",
-    "sqlalchemy (>=2.0.43,<3.0.0)",
-    "email-validator (>=2.3.0,<3.0.0)",
-    "psycopg2-binary (>=2.9.10,<3.0.0)"
+    python = ">=3.11,<3.14"
+    uvicorn = ">=0.35.0,<0.36.0"
+    pydantic = ">=2.11.7,<3.0.0"
+    fastapi = ">=0.116.1,<0.117.0"
+    sqlalchemy = ">=2.0.43,<3.0.0"
+    email-validator = ">=2.3.0,<3.0.0"
+    psycopg2-binary = ">=2.9.10,<3.0.0"
+    python-dotenv = "^1.0.0"  # opcional para variáveis de ambiente
 ]
 package-mode = false
+
+[tool.poetry.dev-dependencies]
+pytest = ">=8.4.2,<9.0.0"
+httpx = ">=0.28.1,<0.29.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

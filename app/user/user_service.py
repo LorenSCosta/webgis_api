@@ -1,36 +1,42 @@
-from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
-from . import user_repository, user_model
+from sqlalchemy.orm import Session
+from app.user import user_repository, user_model
 
-def create_new_user(db: Session, user: user_model.UserCreate):
-    """Serviço para criar um novo usuário com regra de negócio."""
-    # REGRA DE NEGÓCIO: Antes de criar, verificar se o e-mail já está em uso.
-    db_user = user_repository.get_user_by_email(db, email=user.email)
-    if db_user:
-        # Se o usuário já existe, lança uma exceção HTTP que o FastAPI retornará ao cliente.
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
+# -------------------------------
+# CRUD de usuários
+# -------------------------------
 
-    # Se a regra passar, chama o repositório para efetivamente criar o usuário.
-    return user_repository.create_user(db=db, user=user)
+def create_new_user(db: Session, user_in: user_model.UserCreate):
+    """Cria um novo usuário, verificando duplicidade de email"""
+    existing_user = user_repository.get_by_email(db, user_in.email)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email já cadastrado"
+        )
+    return user_repository.create_user(db, user_in)
+
+def get_user_by_email(db: Session, email: str):
+    """Retorna usuário pelo email"""
+    return user_repository.get_by_email(db, email)
 
 def get_all_users(db: Session):
-    """Serviço para listar todos os usuários. Neste caso, apenas repassa a chamada."""
+    """Lista todos os usuários"""
     return user_repository.get_users(db)
 
 def get_user_by_id(db: Session, user_id: int):
-    """Serviço para buscar um usuário pelo ID, com tratamento de erro."""
-    db_user = user_repository.get_user(db, user_id=user_id)
-    # REGRA DE NEGÓCIO: Se o usuário não for encontrado, retornar um erro 404.
-    if db_user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return db_user
+    """Retorna usuário pelo ID"""
+    user = user_repository.get_user(db, user_id)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuário não encontrado")
+    return user
 
 def update_existing_user(db: Session, user_id: int, user_in: user_model.UserUpdate):
-    """Serviço para atualizar um usuário, com tratamento de erro."""
-    db_user = get_user_by_id(db, user_id) # Reutiliza a lógica para buscar e checar se o usuário existe.
-    return user_repository.update_user(db=db, db_user=db_user, user_in=user_in)
+    """Atualiza usuário existente"""
+    db_user = get_user_by_id(db, user_id)
+    return user_repository.update_user(db, db_user, user_in)
 
 def delete_user_by_id(db: Session, user_id: int):
-    """Serviço para deletar um usuário, com tratamento de erro."""
-    db_user = get_user_by_id(db, user_id) # Reutiliza a lógica para buscar e checar se o usuário existe.
-    return user_repository.delete_user(db=db, db_user=db_user)
+    """Deleta usuário existente"""
+    db_user = get_user_by_id(db, user_id)
+    return user_repository.delete_user(db, db_user)

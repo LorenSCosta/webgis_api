@@ -1,27 +1,29 @@
 from pydantic import BaseModel
-from sqlalchemy import Column, Enum, Integer, String
-from database import Base
-import enum
+from sqlalchemy import Column, Enum, Integer
 from sqlalchemy.orm import relationship
+from app.database import Base
 
-# ==================================
-# ENUM: tipos de usuário fixos
-# ==================================
+import enum
 
+# ===============================
+# ENUM DEFINITIVO
+# ===============================
 class TypeUserEnum(str, enum.Enum):
     admin = "admin"
     analista = "analista"
+    viewer = "viewer"
 
 
-# ==================================
-# MODEL: tabela no banco (opcional)
-# ==================================
-
+# ===============================
+# MODEL SQLALCHEMY
+# ===============================
 class TypeUser(Base):
     __tablename__ = "type_users"
 
     id = Column(Integer, primary_key=True, index=True)
-    tipo = Column(Enum(TypeUserEnum), nullable=False, unique=True)  # admin ou analista
+    tipo = Column(Enum(TypeUserEnum), nullable=False, unique=True)
+
+    users = relationship("User", back_populates="type_user")
 
 
 # ==================================
@@ -47,6 +49,6 @@ class TypeUserPublic(TypeUserBase):
     id: int
 
     class Config:
-        from_attributes = True  # permite converter de SQLAlchemy para Pydantic
+        from_attributes = True
 
 users = relationship("User", back_populates="type_user")

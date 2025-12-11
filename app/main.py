@@ -34,7 +34,7 @@ else:
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://webgis-api.onrender.com", "https://webgis-qvd0v9pmm-lorenscostas-projects.vercel.app"],
+    allow_origins=["https://webgis-api.onrender.com", "https://webgis-qvd0v9pmm-lorenscostas-projects.vercel.app", "https://webgis-front.onrender.com"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
